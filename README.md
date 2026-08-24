@@ -60,6 +60,29 @@ Upstream commit used during the successful porting session:
 ca8e7e06bb88a200365f908b680735587165d669
 ```
 
+## Verified real-world DRM reception
+
+The macOS ARM64 build has been successfully tested with an RTL-SDR Blog V4.
+
+The screenshot below shows a successful reception of **Radio Romania International (RRI)**
+on **13,750 kHz**, including complete DRM synchronization:
+
+- Time sync ✅
+- FAC sync ✅
+- SDC sync ✅
+- AAC sync ✅
+- SNR: ~17.4 dB
+- QAM16
+- AAC audio
+- 12 kHz mono
+
+The station was automatically detected from the stored DRM station list using the
+experimental station scanner.
+
+![Radio Romania International DRM reception on macOS ARM64](screenshots/rri-drm-macos-arm64.png)
+
+*Real-world DRM reception test on Apple Silicon using an RTL-SDR Blog V4.*
+
 ## Requirements
 
 - a Mac running macOS
