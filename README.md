@@ -1,14 +1,21 @@
-# drm-receiver on macOS Apple Silicon (ARM64)
+# drm-receiver on macOS (Apple Silicon and Intel)
 
 > **Unofficial community port/build guide**
 
-Native macOS ARM64 build notes and helper script for running
+Native macOS build notes and helper scripts for running
 [`JvanKatwijk/drm-receiver`](https://github.com/JvanKatwijk/drm-receiver)
-on Apple Silicon Macs with an RTL-SDR Blog V4.
+on Apple Silicon (`arm64`) and Intel (`x86_64`) Macs. The verified radio
+test used an RTL-SDR Blog V4 on Apple Silicon.
+
+The helper creates a machine-local native build. It is not a redistributable
+application bundle: Qt and the other libraries remain provided by Homebrew on
+the Mac that performs the build.
 
 ## Verified result
 
-This procedure was developed and tested on an **Apple M4 Mac** with native ARM64 Homebrew libraries.
+This procedure was developed and radio-tested on an **Apple M4 Mac** with
+native ARM64 Homebrew libraries. The generic helper also contains the native
+Intel build path; that path still needs a real Intel-Mac verification.
 
 The resulting application:
 
@@ -30,7 +37,9 @@ This is a real-world functionality test, not merely a successful compilation cla
 
 `drm-receiver` is an upstream GPL-2.0 project. This repository does **not** relicense it and does not claim official macOS support.
 
-The helper script clones upstream source, applies a small set of macOS compatibility edits locally, and builds it against native Homebrew ARM64 libraries.
+The helper script clones upstream source, applies a small set of macOS
+compatibility edits locally, and builds it against the current Mac's native
+Homebrew libraries.
 
 ## Tested environment
 
@@ -51,11 +60,22 @@ Upstream commit used during the successful porting session:
 ca8e7e06bb88a200365f908b680735587165d669
 ```
 
+## Requirements
+
+- a Mac running macOS
+- native Homebrew for the current architecture
+- internet access for Homebrew and the upstream clone
+- Xcode Command Line Tools
+
+Do not run an Intel Homebrew under Rosetta on Apple Silicon. The helper rejects
+the usual mismatched `/usr/local` and `/opt/homebrew` combinations rather than
+silently producing a mixed-architecture build.
+
 ## Quick build
 
 ```bash
-chmod +x build_drm_receiver_macos_arm64.sh
-./build_drm_receiver_macos_arm64.sh
+chmod +x build_drm_receiver_macos.sh
+./build_drm_receiver_macos.sh
 ```
 
 By default the helper uses:
@@ -67,27 +87,38 @@ By default the helper uses:
 To use another source directory:
 
 ```bash
-DRM_RECEIVER_SRC="$HOME/src/drm-receiver" ./build_drm_receiver_macos_arm64.sh
+DRM_RECEIVER_SRC="$HOME/src/drm-receiver" ./build_drm_receiver_macos.sh
 ```
 
+The previous Apple-Silicon command remains available as a compatibility entry
+point:
+
+```bash
+./build_drm_receiver_macos_arm64.sh
+```
+
+It delegates to the generic helper and refuses to run in an Intel process.
 The helper intentionally does **not** use `sudo`.
 
 ## What the helper changes
 
 The tested upstream source was strongly Linux-oriented in a few places. The helper applies these local compatibility fixes:
 
-1. Adds native Homebrew include/library paths for Qt 6, Qwt, libsndfile, libsamplerate, PortAudio, libusb, FFTW, Eigen, FDK-AAC and librtlsdr.
-2. Changes `#include <QwtText>` to `#include <qwt_text.h>` for Homebrew Qwt.
-3. Removes Linux-oriented linker assumptions such as `-lfaad_drm`, `-lqwt-qt6`, `-lrt`, `-ldl`, `-L/usr/lib64` and `-L/lib64` on macOS.
-4. Links Qwt as a macOS framework.
-5. Adds a macOS RTL-SDR runtime loader for `/opt/homebrew/opt/librtlsdr/lib/librtlsdr.dylib`.
+1. Detects `arm64` or `x86_64` and resolves all dependencies through the active native Homebrew installation.
+2. Adds the detected include/library paths for Qt 6, Qwt, libsndfile, libsamplerate, PortAudio, libusb, FFTW, Eigen, FDK-AAC and librtlsdr.
+3. Changes `#include <QwtText>` to `#include <qwt_text.h>` for Homebrew Qwt.
+4. Removes Linux-oriented linker assumptions such as `-lfaad_drm`, `-lqwt-qt6`, `-lrt`, `-ldl`, `-L/usr/lib64` and `-L/lib64` on macOS.
+5. Links Qwt as a macOS framework.
+6. Adds a macOS RTL-SDR runtime loader using the path reported by `brew --prefix librtlsdr` on the build machine.
+7. Uses the local macOS version as the default deployment target, avoiding a false promise of compatibility with an older system than the installed Homebrew libraries support.
+8. Verifies that the resulting executable contains the current Mac architecture.
 
 ## Build output
 
 Find the generated app with:
 
 ```bash
-find ~/drm-receiver/build-arm64 -maxdepth 7 \
+find ~/drm-receiver/build-"$(uname -m)" -maxdepth 7 \
   \( -name "drm-receiver.app" -o -name "drm-receiver" \) -print
 ```
 
@@ -100,7 +131,7 @@ A path observed during testing was:
 Launch from Terminal for diagnostics:
 
 ```bash
-~/drm-receiver/build-arm64/linux-bin/drm-receiver.app/Contents/MacOS/drm-receiver
+~/drm-receiver/build-"$(uname -m)"/linux-bin/drm-receiver.app/Contents/MacOS/drm-receiver
 ```
 
 ## RTL-SDR Blog V4 notes
@@ -175,6 +206,7 @@ This is an unofficial community project and is not affiliated with or endorsed b
 
 ```text
 Native ARM64 build       VERIFIED
+Native Intel build       IMPLEMENTED, NOT HARDWARE-VERIFIED
 Qt GUI                    VERIFIED
 RTL-SDR Blog V4           VERIFIED
 HF input                  VERIFIED
