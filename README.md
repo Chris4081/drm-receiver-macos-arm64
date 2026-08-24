@@ -13,10 +13,29 @@ the Mac that performs the build.
 
 ## Verified real-world DRM reception
 
-The macOS ARM64 build has been successfully tested with an RTL-SDR Blog V4.
+This procedure was developed and radio-tested on an **Apple M4 Mac** with
+native ARM64 Homebrew libraries. The generic helper also contains the native
+Intel build path; that path still needs real Intel-Mac verification.
 
-The screenshot below shows a successful reception of **Radio Romania International (RRI)**
-on **13,750 kHz**, including complete DRM synchronization:
+The resulting application:
+
+- built as **ARM64 native** (`translated: false`)
+- launched successfully with Qt 6 / Qwt
+- loaded `librtlsdr.dylib` on macOS
+- detected an **RTL-SDR Blog V4 / R828D**
+- received HF through the RTL-SDR path
+- achieved complete DRM synchronization
+- successfully decoded DRM audio
+- identified **BBC World Service** during an earlier marginal-signal test
+- identified **QAM16 / xHE-AAC**
+- successfully received **Radio Romania International (RRI)** on **13,750 kHz**
+- successfully reached **Time, FAC, SDC and AAC synchronization**
+- successfully tested the experimental stored-station scanner
+
+### Radio Romania International test
+
+A real-world reception test of **Radio Romania International (RRI)** on
+**13,750 kHz** achieved complete DRM synchronization:
 
 - Time sync ✅
 - FAC sync ✅
@@ -27,34 +46,18 @@ on **13,750 kHz**, including complete DRM synchronization:
 - AAC audio
 - 12 kHz mono
 
-The station was automatically detected from the stored DRM station list using the
-experimental station scanner.
+The station was automatically detected from the stored DRM station list using
+the experimental station scanner.
 
 ![Radio Romania International DRM reception on macOS ARM64](screenshots/rri-drm-macos-arm64.png)
 
-*Real-world DRM reception test on Apple Silicon using an RTL-SDR Blog V4.*
+*Successful real-world DRM reception on Apple Silicon using an RTL-SDR Blog V4.*
 
-## Verified result
+An earlier test also successfully identified **BBC World Service** and
+**xHE-AAC**, with brief decoded audio under marginal reception conditions.
 
-This procedure was developed and radio-tested on an **Apple M4 Mac** with
-native ARM64 Homebrew libraries. The generic helper also contains the native
-Intel build path; that path still needs a real Intel-Mac verification.
-
-The resulting application:
-
-- built as **ARM64 native** (`translated: false`)
-- launched successfully with Qt 6 / Qwt
-- loaded `librtlsdr.dylib` on macOS
-- detected an **RTL-SDR Blog V4 / R828D**
-- received HF through the RTL-SDR path
-- achieved real DRM synchronization
-- identified **BBC World Service**
-- identified **QAM16 / xHE-AAC**
-- produced brief decoded BBC audio during a marginal-signal reception test
-
-A representative successful decoder state showed **time sync** and **FAC sync** green and the service label **BBC World Service**. Audio was decoded briefly when signal quality became sufficient.
-
-This is a real-world functionality test, not merely a successful compilation claim.
+This demonstrates real-world DRM reception and decoding rather than merely
+a successful compilation of the application.
 
 ## Important scope note
 
